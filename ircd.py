@@ -279,25 +279,8 @@ class User(object):
         target = recv[1]
         msg = recv[2]
 
-        # PM to user
-        if target[0] != "#":
-            # Find user
-            user = [
-                user for user in self.server.users
-                if user.nickname.lower() == target.lower()
-            ]
-            # User does not exist
-            if user == []:
-                self.send_numeric(401, "%s :No such nick/channel" % target)
-                return
-
-            if user[0].away:
-                self.send_numeric(301, "%s :%s" %
-                                  (user[0].nickname, user[0].away))
-
-            # Broadcast message
-            self.broadcast(user, "PRIVMSG %s :%s" % (target, msg))
-        else:
+        # Send message to channel
+        if target.startswith('#'):
             # Find channel
             channel = [
                 channel for channel in self.server.channels
@@ -306,6 +289,7 @@ class User(object):
             if channel == []:
                 self.send_numeric(401, "%s :No such nick/channel" % target)
                 return
+
             channel = channel[0]
 
             if self not in channel.users and 'n' in channel.modes:
@@ -319,8 +303,26 @@ class User(object):
                 return
 
             # Broadcast message
-            self.broadcast([user for user in channel.users if user !=
-                            self], "PRIVMSG %s :%s" % (target, msg))
+            channel_users = [user for user in channel.users if user != self]
+            self.broadcast(channel_users, "PRIVMSG %s :%s" % (target, msg))
+        # PM to user
+        else:
+            # Find user
+            user = [
+                user for user in self.server.users
+                if user.nickname.lower() == target.lower()
+            ]
+            # User does not exist
+            if user == []:
+                self.send_numeric(401, "%s :No such nick/channel" % target)
+                return
+            user = user[0]
+            if user.away:
+                self.send_numeric(301, "%s :%s" %
+                                  (user.nickname, user.away))
+
+            # Broadcast message
+            self.broadcast([user], "PRIVMSG %s :%s" % (target, msg))
 
     def handle_NOTICE(self, recv):
         if len(recv) < 2:
