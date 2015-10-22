@@ -201,27 +201,31 @@ class User(object):
         self.send_numeric(351, "%s. %s :http://github.com/programble/omgircd" %
                           (self.server.version, self.server.hostname))
 
+    def _valid_nickname(self, nick):
+        # Check nick characters
+        valid = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`^-_[]{}|\\"  # noqa
+        for c in nick:
+            if c not in valid:
+                return False
+        # Check nick length
+        if len(nick) > 16:
+            return False
+        return True
+
     def handle_NICK(self, recv):
         if len(recv) < 2:
             # No nickname given
             self.send_numeric(431, ":No nickname given")
             return
-        nick = recv[1]
 
+        nick = recv[1]
         if nick.strip() == '':
             # No nickname given
             self.send_numeric(431, ":No nickname given")
             return
 
         # Check if nick is valid
-        valid = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`^-_[]{}|\\"  # noqa
-        for c in nick:
-            if c not in valid:
-                self.send_numeric(432, "%s :Erroneous Nickname" % nick)
-                return
-
-        # Check nick length
-        if len(nick) > 16:
+        if not self._valid_nickname(nick):
             self.send_numeric(432, "%s :Erroneous Nickname" % nick)
             return
 
@@ -275,20 +279,6 @@ class User(object):
 
         target = recv[1]
         msg = recv[2]
-
-        # DEBUGGING (disable this)
-        if target == "DEBUG" and (
-            self.ip == "127.0.0.1" or self.ip.startswith("192.168.0.")
-        ):
-            try:
-                self._send(":DEBUG!DEBUG@DEBUG PRIVMSG %s :%s" %
-                           (self.nickname, eval(msg)))
-            except:
-                try:
-                    exec(msg)
-                except:
-                    pass
-            return
 
         # PM to user
         if target[0] != "#":
