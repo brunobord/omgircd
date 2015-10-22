@@ -394,8 +394,8 @@ class User(object):
             return
         elif channel_name == "0":
             # Part all channels
-            for channel in [channel.name for channel in self.channels]:
-                self.handle_PART(("PART", channel))
+            for channel in self.channels:
+                self.handle_PART(("PART", channel.name))
             return
 
         if not self._valid_channel_name(channel_name):
