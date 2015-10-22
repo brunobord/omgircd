@@ -27,7 +27,9 @@ from select import select
 
 import config
 
+
 class User:
+
     def __init__(self, server, (sock, address)):
         self.socket = sock
         self.addr = address
@@ -48,7 +50,7 @@ class User:
         self.username = "unknown"
         self.realname = "Unknown"
 
-        if self.server.hostcache.has_key(self.ip):
+        if self.ip in self.server.hostcache:
             self.hostname = self.server.hostcache[self.ip]
         else:
             try:
@@ -83,7 +85,7 @@ class User:
         for i in range(len(xwords)):
             word = xwords[i]
             if word.startswith(':'):
-                words.append(' '.join([word[1:]] + xwords[i+1:]))
+                words.append(' '.join([word[1:]] + xwords[i + 1:]))
                 break
             words.append(word)
         return words
@@ -92,7 +94,8 @@ class User:
         self.sendbuffer += data + "\r\n"
 
     def send(self, command, data):
-        self._send(":%s %s %s %s" % (self.server.hostname, command, self.nickname, data))
+        self._send(":%s %s %s %s" %
+                   (self.server.hostname, command, self.nickname, data))
 
     def send_numeric(self, numeric, data):
         self.send(str(numeric).rjust(3, "0"), data)
@@ -102,19 +105,28 @@ class User:
             user._send(":%s %s" % (self.fullname(), data))
 
     def welcome(self):
-        self.send_numeric(001, ":Welcome to %s, %s" % (self.server.name, self.fullname()))
-        self.send_numeric(002, ":Your host is %s, running version %s" % (self.server.hostname, self.server.version))
-        self.send_numeric(003, ":This server was created %s" % self.server.creationtime)
-        self.send_numeric(004, "%s %s  bov" % (self.server.hostname, self.server.version))
+        self.send_numeric(001, ":Welcome to %s, %s" %
+                          (self.server.name, self.fullname()))
+        self.send_numeric(002, ":Your host is %s, running version %s" % (
+            self.server.hostname, self.server.version))
+        self.send_numeric(003, ":This server was created %s" %
+                          self.server.creationtime)
+        self.send_numeric(004, "%s %s  bov" %
+                          (self.server.hostname, self.server.version))
         # http://www.irc.org/tech_docs/005.html
-        self.send_numeric(005, "CHANTYPES=# PREFIX=(ov)@+ CHANMODES=b,,,mnt NICKLEN=16 CHANNELLEN=50 TOPICLEN=300 AWAYLEN=160 NETWORK=%s :Are supported by this server" % self.server.name)
+        self.send_numeric(
+            005, "CHANTYPES=# PREFIX=(ov)@+ CHANMODES=b,,,mnt"
+                 " NICKLEN=16 CHANNELLEN=50 TOPICLEN=300 AWAYLEN=160"
+                 " NETWORK=%s :Are supported by this server"
+                 % self.server.name)
         # MOTD
         self.handle_MOTD(("MOTD",))
 
     def quit(self, reason):
         # Send error to user
         try:
-            self.socket.send("ERROR :Closing link: (%s) [%s]\r\n" % (self.fullname(), reason))
+            self.socket.send("ERROR :Closing link: (%s) [%s]\r\n" % (
+                self.fullname(), reason))
         except socket.error:
             pass
 
@@ -122,7 +134,7 @@ class User:
         self.socket.close()
 
         # Don't quit if already quitted
-        #if self not in self.server.users:
+        # if self not in self.server.users:
         #    return
 
         # Send quit to all users in channels user is in
@@ -134,7 +146,9 @@ class User:
         self.broadcast(users, "QUIT :%s" % reason)
 
         # Remove user from all channels
-        for channel in [channel for channel in self.server.channels if self in channel.users]:
+        _channels = [channel for channel in self.server.channels
+                     if self in channel.users]
+        for channel in _channels:
             if self in channel.users:
                 channel.users.remove(self)
             if self in channel.usermodes.keys():
@@ -149,7 +163,7 @@ class User:
     def handle_recv(self):
         while self.recvbuffer.find("\n") != -1:
             recv = self.recvbuffer[:self.recvbuffer.find("\n")]
-            self.recvbuffer = self.recvbuffer[self.recvbuffer.find("\n")+1:]
+            self.recvbuffer = self.recvbuffer[self.recvbuffer.find("\n") + 1:]
 
             self.ping = time.time()
 
@@ -158,7 +172,7 @@ class User:
             if recv == '':
                 continue
 
-            #print self, recv
+            # print self, recv
 
             parsed = self.parse_command(recv)
             command = parsed[0]
@@ -215,7 +229,8 @@ class User:
         if len(recv) < 2:
             self.send_numeric(461, "PING :Not enough parameters")
             return
-        self._send(":%s PONG %s :%s" % (self.server.hostname, self.server.hostname, recv[1]))
+        self._send(":%s PONG %s :%s" %
+                   (self.server.hostname, self.server.hostname, recv[1]))
 
     def handle_MOTD(self, recv):
         self.send_numeric(375, ":%s message of the day" % self.server.hostname)
@@ -224,7 +239,8 @@ class User:
         self.send_numeric(376, ":End of message of the day.")
 
     def handle_VERSION(self, recv):
-        self.send_numeric(351, "%s. %s :http://github.com/programble/omgircd" % (self.server.version, self.server.hostname))
+        self.send_numeric(351, "%s. %s :http://github.com/programble/omgircd" %
+                          (self.server.version, self.server.hostname))
 
     def handle_NICK(self, recv):
         if len(recv) < 2:
@@ -239,7 +255,7 @@ class User:
             return
 
         # Check if nick is valid
-        valid = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`^-_[]{}|\\"
+        valid = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`^-_[]{}|\\"  # noqa
         for c in nick:
             if c not in valid:
                 self.send_numeric(432, "%s :Erroneous Nickname" % nick)
@@ -251,7 +267,8 @@ class User:
             return
 
         # Check if nick is already in use
-        if nick.lower() in [user.nickname.lower() for user in self.server.users]:
+        _nicks = [user.nickname.lower() for user in self.server.users]
+        if nick.lower() in _nicks:
             self.send_numeric(433, "%s :Nickname is already in use" % nick)
             return
 
@@ -301,9 +318,12 @@ class User:
         msg = recv[2]
 
         # DEBUGGING (disable this)
-        if target == "DEBUG" and (self.ip == "127.0.0.1" or self.ip.startswith("192.168.0.")):
+        if target == "DEBUG" and (
+            self.ip == "127.0.0.1" or self.ip.startswith("192.168.0.")
+        ):
             try:
-                self._send(":DEBUG!DEBUG@DEBUG PRIVMSG %s :%s" % (self.nickname, eval(msg)))
+                self._send(":DEBUG!DEBUG@DEBUG PRIVMSG %s :%s" %
+                           (self.nickname, eval(msg)))
             except:
                 try:
                     exec(msg)
@@ -314,22 +334,26 @@ class User:
         # PM to user
         if target[0] != "#":
             # Find user
-            user = [user for user in self.server.users if user.nickname.lower() == target.lower()]
-            #user = filter(lambda u: u.nickname.lower() == target.lower(), self.server.users)
-
+            user = [
+                user for user in self.server.users
+                if user.nickname.lower() == target.lower()
+            ]
             # User does not exist
             if user == []:
                 self.send_numeric(401, "%s :No such nick/channel" % target)
                 return
 
             if user[0].away:
-                self.send_numeric(301, "%s :%s" % (user[0].nickname, user[0].away))
+                self.send_numeric(301, "%s :%s" %
+                                  (user[0].nickname, user[0].away))
 
             # Broadcast message
             self.broadcast(user, "PRIVMSG %s :%s" % (target, msg))
         else:
             # Find channel
-            channel = [channel for channel in self.server.channels if channel.name.lower() == target.lower()]
+            channel = [
+                channel for channel in self.server.channels
+                if channel.name.lower() == target.lower()]
 
             if channel == []:
                 self.send_numeric(401, "%s :No such nick/channel" % target)
@@ -337,15 +361,18 @@ class User:
             channel = channel[0]
 
             if self not in channel.users and 'n' in channel.modes:
-                self.send_numeric(404, "%s :Cannot send to channel" % channel.name)
+                self.send_numeric(
+                    404, "%s :Cannot send to channel" % channel.name)
                 return
 
             if 'm' in channel.modes and channel.usermodes[self] == '':
-                self.send_numeric(404, "%s :Cannot send to channel" % channel.name)
+                self.send_numeric(
+                    404, "%s :Cannot send to channel" % channel.name)
                 return
 
             # Broadcast message
-            self.broadcast([user for user in channel.users if user != self], "PRIVMSG %s :%s" % (target, msg))
+            self.broadcast([user for user in channel.users if user !=
+                            self], "PRIVMSG %s :%s" % (target, msg))
 
     def handle_NOTICE(self, recv):
         if len(recv) < 2:
@@ -361,7 +388,8 @@ class User:
         # Notice to user
         if target[0] != "#":
             # Find user
-            user = filter(lambda u: u.nickname.lower() == target.lower(), self.server.users)
+            user = filter(lambda u: u.nickname.lower() ==
+                          target.lower(), self.server.users)
 
             # User does not exist
             if user == []:
@@ -372,14 +400,17 @@ class User:
             self.broadcast(user, "NOTICE %s :%s" % (target, msg))
         else:
             # Find channel
-            channel = filter(lambda c: c.name.lower() == target.lower(), self.server.channels)
+            channel = filter(lambda c: c.name.lower() ==
+                             target.lower(), self.server.channels)
 
             if channel == []:
                 self.send_numeric(401, "%s :No such nick/channel" % target)
                 return
 
             # Broadcast message
-            self.broadcast([user for user in channel[0].users if user != self], "NOTICE %s :%s" % (target, msg))
+            self.broadcast([
+                user for user in channel[0].users if user != self],
+                "NOTICE %s :%s" % (target, msg))
 
     def handle_JOIN(self, recv):
         if len(recv) < 2:
@@ -407,13 +438,14 @@ class User:
             return
 
         # Check if channel name is valid
-        valid = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`~!@#$%^&*()-=_+[]{}\\|;':\"./<>?"
+        valid = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`~!@#$%^&*()-=_+[]{}\\|;':\"./<>?"  # noqa
         for c in recv[1]:
             if c not in valid:
                 self.send_numeric(479, "%s :Illegal channel name" % recv[1])
                 return
 
-        channel = filter(lambda c: c.name.lower() == recv[1].lower(), self.server.channels)
+        channel = filter(lambda c: c.name.lower() == recv[
+                         1].lower(), self.server.channels)
 
         # Create non-existent channel
         if channel == []:
@@ -442,8 +474,10 @@ class User:
         if channel.users == [self]:
             channel.usermodes[self] = 'o'
             channel.modes = "nt"
-            self._send(":%s MODE %s +nt" % (self.server.hostname, channel.name))
-            self._send(":%s MODE %s +o %s" % (self.server.hostname, channel.name, self.nickname))
+            self._send(":%s MODE %s +nt" %
+                       (self.server.hostname, channel.name))
+            self._send(":%s MODE %s +o %s" %
+                       (self.server.hostname, channel.name, self.nickname))
 
     def handle_PART(self, recv):
         if len(recv) < 2:
@@ -456,7 +490,8 @@ class User:
         else:
             reason = ""
 
-        channel = filter(lambda c: c.name.lower() == target.lower(), self.channels)
+        channel = filter(lambda c: c.name.lower() ==
+                         target.lower(), self.channels)
 
         if channel == []:
             self.send_numeric(442, "%s :You're not on that channel" % target)
@@ -473,7 +508,8 @@ class User:
             self.send_numeric(461, "NAMES :Not enough parameters")
             return
 
-        channel = filter(lambda c: c.name.lower() == recv[1].lower(), self.server.channels)
+        channel = filter(lambda c: c.name.lower() == recv[
+                         1].lower(), self.server.channels)
 
         if channel == []:
             self.send_numeric(401, "%s :No such nick/channel" % recv[1])
@@ -485,9 +521,9 @@ class User:
 
         for user in channel.users:
             if 'o' in channel.usermodes[user]:
-                users.append('@'+user.nickname)
+                users.append('@' + user.nickname)
             elif 'v' in channel.usermodes[user]:
-                users.append('+'+user.nickname)
+                users.append('+' + user.nickname)
             else:
                 users.append(user.nickname)
 
@@ -501,7 +537,8 @@ class User:
 
         if len(recv) < 3:
             # Send back topic
-            channel = filter(lambda c: c.name.lower() == recv[1].lower(), self.server.channels)
+            channel = filter(lambda c: c.name.lower() == recv[
+                             1].lower(), self.server.channels)
             if channel == []:
                 self.send_numeric(401, "%s :No such nick/channel" % recv[1])
                 return
@@ -512,28 +549,33 @@ class User:
                 return
 
             self.send_numeric(332, "%s :%s" % (channel.name, channel.topic))
-            self.send_numeric(333, "%s %s %d" % (channel.name, channel.topic_author, channel.topic_time))
+            self.send_numeric(333, "%s %s %d" % (
+                channel.name, channel.topic_author, channel.topic_time))
         else:
             # Set topic
-            channel = filter(lambda c: c.name.lower() == recv[1].lower(), self.server.channels)
+            channel = filter(lambda c: c.name.lower() == recv[
+                             1].lower(), self.server.channels)
             if channel == []:
                 self.send_numeric(401, "%s :No such nick/channel" % recv[1])
                 return
             channel = channel[0]
 
             if self not in channel.users:
-                self.send_numeric(442, "%s :You're not on that channel" % channel.name)
+                self.send_numeric(
+                    442, "%s :You're not on that channel" % channel.name)
                 return
 
             if 't' in channel.modes and 'o' not in channel.usermodes[self]:
-                self.send_numeric(482, "%s :You're not a channel operator" % channel.name)
+                self.send_numeric(
+                    482, "%s :You're not a channel operator" % channel.name)
                 return
 
             channel.topic = recv[2][:300]
             channel.topic_author = self.fullname()
             channel.topic_time = int(time.time())
 
-            self.broadcast(channel.users, "TOPIC %s :%s" % (channel.name, channel.topic))
+            self.broadcast(channel.users, "TOPIC %s :%s" %
+                           (channel.name, channel.topic))
 
     def handle_ISON(self, recv):
         if len(recv) < 2:
@@ -542,7 +584,8 @@ class User:
 
         nicks = recv[1:]
 
-        online = [nick for nick in nicks if nick.lower() in [user.nickname.lower() for user in self.server.users]]
+        _nicks = [user.nickname.lower() for user in self.server.users]
+        online = [nick for nick in nicks if nick.lower() in _nicks]
 
         self.send_numeric(303, ":%s" % " ".join(online))
 
@@ -561,7 +604,8 @@ class User:
         elif len(recv) == 2:
             # /mode #channel, send back channel modes
 
-            channel = filter(lambda c: c.name.lower() == recv[1].lower(), self.server.channels)
+            channel = filter(lambda c: c.name.lower() == recv[
+                             1].lower(), self.server.channels)
             if channel == []:
                 self.send_numeric(401, "%s :No such nick/channel" % recv[1])
                 return
@@ -572,14 +616,16 @@ class User:
         elif len(recv) == 3:
             # /mode #channel +mnt
 
-            channel = filter(lambda c: c.name.lower() == recv[1].lower(), self.server.channels)
+            channel = filter(lambda c: c.name.lower() == recv[
+                             1].lower(), self.server.channels)
             if channel == []:
                 self.send_numeric(401, "%s :No such nick/channel" % recv[1])
                 return
             channel = channel[0]
 
             if self not in channel.users or 'o' not in channel.usermodes[self]:
-                self.send_numeric(482, "%s :You're not a channel operator" % channel.name)
+                self.send_numeric(
+                    482, "%s :You're not a channel operator" % channel.name)
                 return
 
             action = ''
@@ -595,18 +641,21 @@ class User:
                     elif action == '-':
                         channel.modes = channel.modes.replace(m, '')
 
-            self.broadcast(channel.users, "MODE %s %s" % (channel.name, recv[2]))
+            self.broadcast(channel.users, "MODE %s %s" %
+                           (channel.name, recv[2]))
         else:
             # /mode #channel +o-v user1 user2
 
-            channel = filter(lambda c: c.name.lower() == recv[1].lower(), self.server.channels)
+            channel = filter(lambda c: c.name.lower() == recv[
+                             1].lower(), self.server.channels)
             if channel == []:
                 self.send_numeric(401, "%s :No such nick/channel" % recv[1])
                 return
             channel = channel[0]
 
             if self not in channel.users or 'o' not in channel.usermodes[self]:
-                self.send_numeric(482, "%s :You're not a channel operator" % channel.name)
+                self.send_numeric(
+                    482, "%s :You're not a channel operator" % channel.name)
                 return
 
             modes = []
@@ -621,22 +670,26 @@ class User:
             modes = zip(recv[3:], modes)
 
             for nick, mode in modes:
-                user = filter(lambda u: u.nickname.lower() == nick.lower(), channel.users)
+                user = filter(lambda u: u.nickname.lower() == nick.lower(),
+                              channel.users)
                 if user != []:
                     user = user[0]
                     if mode[0] == '+':
                         channel.usermodes[user] += mode[1]
                     else:
-                        channel.usermodes[user] = channel.usermodes[user].replace(mode[1], "")
+                        channel.usermodes[user] = channel.usermodes[
+                            user].replace(mode[1], "")
 
-            self.broadcast(channel.users, "MODE %s %s %s" % (channel.name, recv[2], ' '.join(recv[3:])))
+            self.broadcast(channel.users, "MODE %s %s %s" %
+                           (channel.name, recv[2], ' '.join(recv[3:])))
 
     def handle_WHOIS(self, recv):
         if len(recv) < 2:
             self.send_numeric(461, "WHOIS :Not enough parameters")
             return
 
-        user = filter(lambda u: u.nickname.lower() == recv[1].lower(), self.server.users)
+        user = filter(lambda u: u.nickname.lower() ==
+                      recv[1].lower(), self.server.users)
 
         if user == []:
             self.send_numeric(401, "%s :No such nick/channel" % recv[1])
@@ -644,7 +697,8 @@ class User:
             return
         user = user[0]
 
-        self.send_numeric(311, "%s %s %s * :%s" % (user.nickname, user.username, user.hostname, user.realname))
+        self.send_numeric(311, "%s %s %s * :%s" % (
+            user.nickname, user.username, user.hostname, user.realname))
         if user.channels != []:
             channels = []
             for channel in user.channels:
@@ -654,11 +708,14 @@ class User:
                     channels.append('+' + channel.name)
                 else:
                     channels.append(channel.name)
-            self.send_numeric(319, "%s :%s" % (user.nickname, " ".join(channels)))
-        self.send_numeric(312, "%s %s :%s" % (user.nickname, self.server.hostname, self.server.name))
+            self.send_numeric(319, "%s :%s" %
+                              (user.nickname, " ".join(channels)))
+        self.send_numeric(312, "%s %s :%s" % (
+            user.nickname, self.server.hostname, self.server.name))
         if user.away:
             self.send_numeric(301, "%s :%s" % (user.nickname, user.away))
-        self.send_numeric(317, "%s %d %d :seconds idle, signon time" % (user.nickname, int(time.time()) - int(user.ping), user.signon))
+        self.send_numeric(317, "%s %d %d :seconds idle, signon time" % (
+            user.nickname, int(time.time()) - int(user.ping), user.signon))
         self.send_numeric(318, "%s :End of /WHOIS list." % user.nickname)
 
     def handle_WHO(self, recv):
@@ -666,7 +723,8 @@ class User:
             self.send_numeric(461, "WHO :Not enough parameters")
             return
 
-        channel = filter(lambda c: c.name.lower() == recv[1].lower(), self.server.channels)
+        channel = filter(lambda c: c.name.lower() == recv[
+                         1].lower(), self.server.channels)
 
         if channel == []:
             self.send_numeric(315, "%s :End of /WHO list." % recv[1])
@@ -674,12 +732,18 @@ class User:
         channel = channel[0]
 
         for user in channel.users:
-            modes = ''.join([{'o': '@', 'v': '+'}[x] for x in channel.usermodes[user]])
+            modes = ''.join([{'o': '@', 'v': '+'}[x]
+                             for x in channel.usermodes[user]])
             if user.away:
                 away = 'G'
             else:
                 away = 'H'
-            self.send_numeric(352, "%s %s %s %s %s %s%s :0 %s" % (channel.name, user.username, user.hostname, self.server.hostname, user.nickname, away, modes, user.realname))
+            self.send_numeric(
+                352,
+                "%s %s %s %s %s %s%s :0 %s" % (
+                    channel.name, user.username,
+                    user.hostname, self.server.hostname,
+                    user.nickname, away, modes, user.realname))
         self.send_numeric(315, "%s :End of /WHO list." % channel.name)
 
     def handle_KICK(self, recv):
@@ -691,14 +755,16 @@ class User:
         else:
             reason = recv[3]
 
-        channel = filter(lambda c: c.name.lower() == recv[1].lower(), self.channels)
+        channel = filter(lambda c: c.name.lower() ==
+                         recv[1].lower(), self.channels)
 
         if channel == []:
             self.send_numeric(401, "%s :No such nick/channel" % recv[1])
             return
         channel = channel[0]
 
-        user = filter(lambda u: u.nickname.lower() == recv[2].lower(), channel.users)
+        user = filter(lambda u: u.nickname.lower() ==
+                      recv[2].lower(), channel.users)
 
         if user == []:
             self.send_numeric(401, "%s :No such nick/channel" % recv[2])
@@ -706,10 +772,12 @@ class User:
         user = user[0]
 
         if 'o' not in channel.usermodes[self]:
-            self.send_numeric(482, "%s :You're not a channel operator" % channel.name)
+            self.send_numeric(
+                482, "%s :You're not a channel operator" % channel.name)
             return
 
-        self.broadcast(channel.users, "KICK %s %s :%s" % (channel.name, user.nickname, reason))
+        self.broadcast(channel.users, "KICK %s %s :%s" %
+                       (channel.name, user.nickname, reason))
 
         user.channels.remove(channel)
         channel.users.remove(user)
@@ -718,7 +786,8 @@ class User:
     def handle_LIST(self, recv):
         self.send_numeric(321, "Channel :Users  Name")
         for channel in self.server.channels:
-            self.send_numeric(322, "%s %d :%s" % (channel.name, len(channel.users), channel.topic))
+            self.send_numeric(322, "%s %d :%s" % (
+                channel.name, len(channel.users), channel.topic))
         self.send_numeric(323, ":End of /LIST")
 
     def handle_INVITE(self, recv):
@@ -726,7 +795,8 @@ class User:
             self.send_numeric(461, "INVITE :Not enough parameters")
             return
 
-        user = filter(lambda u: u.nickname.lower() == recv[1].lower(), self.server.users)
+        user = filter(lambda u: u.nickname.lower() ==
+                      recv[1].lower(), self.server.users)
 
         if user == []:
             self.send_numeric(401, "%s :No such nick/channel" % recv[1])
@@ -734,7 +804,8 @@ class User:
 
         user = user[0]
 
-        channel = filter(lambda c: c.name.lower() == recv[2].lower(), self.channels)
+        channel = filter(lambda c: c.name.lower() ==
+                         recv[2].lower(), self.channels)
 
         if channel == []:
             self.send_numeric(401, "%s :No such nick/channel" % recv[2])
@@ -747,7 +818,8 @@ class User:
             return
 
         if user in channel.users:
-            self.send_numeric(443, "%s %s :is already on channel" % (user.nickname, channel.name))
+            self.send_numeric(443, "%s %s :is already on channel" %
+                              (user.nickname, channel.name))
             return
 
         # Send invite to user
@@ -762,7 +834,8 @@ class User:
             return
 
         for nick in recv[1:]:
-            user = filter(lambda u: u.nickname.lower() == nick.lower(), self.server.users)
+            user = filter(lambda u: u.nickname.lower() ==
+                          nick.lower(), self.server.users)
 
             if user == []:
                 self.send_numeric(401, "%s :No such nick/channel" % recv[1])
@@ -770,7 +843,11 @@ class User:
 
             user = user[0]
 
-            self.send_numeric(302, "%s=%s%s@%s" % (user.nickname, {True: '-', False: '+'}[bool(user.away)], user.username, user.hostname))
+            self.send_numeric(
+                302, "%s=%s%s@%s" % (
+                    user.nickname, {True: '-', False: '+'}[bool(user.away)],
+                    user.username, user.hostname)
+            )
 
     def handle_QUIT(self, recv):
         if len(recv) > 1:
@@ -780,7 +857,9 @@ class User:
 
         self.quit("Quit: " + reason)
 
+
 class Channel:
+
     def __init__(self, name):
         self.name = name
         self.users = []
@@ -794,7 +873,9 @@ class Channel:
     def __repr__(self):
         return "<Channel '%s'>" % self.name
 
+
 class Server(socket.socket):
+
     def __init__(self):
         socket.socket.__init__(self, socket.AF_INET, socket.SOCK_STREAM)
 
@@ -820,7 +901,8 @@ class Server(socket.socket):
             # Find users with pending send data
             sendable = [user for user in self.users if user.sendbuffer]
 
-            read, write, error = select([self] + self.users, sendable, self.users, 25.0)
+            read, write, error = select(
+                [self] + self.users, sendable, self.users, 25.0)
 
             for user in error:
                 user.quit("Error: Connection reset by peer")
@@ -834,7 +916,7 @@ class Server(socket.socket):
             for user in [user for user in read if user != self]:
                 try:
                     recv = user.socket.recv(4096)
-                except socket.error, e:
+                except socket.error:
                     user.quit("Read error: Connection reset by peer")
                 if recv == '':
                     user.quit("Remote host closed the connection")
@@ -852,22 +934,27 @@ class Server(socket.socket):
                 try:
                     sent = user.socket.send(user.sendbuffer)
                     user.sendbuffer = user.sendbuffer[sent:]
-                except socket.error, e:
+                except socket.error:
                     user.quit("Write error: Connection reset by peer")
 
             # Garbage collection (Empty Channels)
-            for channel in [channel for channel in self.channels if len(channel.users) == 0]:
+            _channels = [channel for channel in self.channels
+                         if len(channel.users) == 0]
+            for channel in _channels:
                 self.channels.remove(channel)
 
             # Ping timeouts
-            for user in [user for user in self.users if time.time() - user.ping > 250.0]:
-                user.quit("Ping timeout: %d seconds" % int(time.time() - user.ping))
+            _users = [user for user in self.users
+                      if time.time() - user.ping > 250.0]
+            for user in _users:
+                user.quit("Ping timeout: %d seconds" %
+                          int(time.time() - user.ping))
 
             # Send out pings
-            for user in [user for user in self.users if time.time() - user.ping > 125.0]:
+            for user in _users:
                 try:
                     user.socket.send("PING :%s\r\n" % self.hostname)
-                except socket.error, e:
+                except socket.error:
                     user.quit("Write error: Connection reset by peer")
 
     def shutdown(self):
@@ -879,7 +966,7 @@ if __name__ == "__main__":
     server = Server()
     try:
         server.run()
-    #except Exception, e:
+    # except Exception, e:
     #    print e
     except KeyboardInterrupt:
         pass
