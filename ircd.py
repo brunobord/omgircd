@@ -150,8 +150,7 @@ class User(object):
         _channels = [channel for channel in self.server.channels
                      if self in channel.users]
         for channel in _channels:
-            if self in channel.users:
-                channel.users.remove(self)
+            channel.users.remove(self)
             if self in channel.usermodes.keys():
                 channel.usermodes.pop(self)
 
