@@ -28,7 +28,7 @@ from select import select
 import config
 
 
-class User:
+class User(object):
 
     def __init__(self, server, (sock, address)):
         self.socket = sock
@@ -133,10 +133,6 @@ class User:
         # Close socket
         self.socket.close()
 
-        # Don't quit if already quitted
-        # if self not in self.server.users:
-        #    return
-
         # Send quit to all users in channels user is in
         users = []
         for channel in self.channels:
@@ -158,8 +154,6 @@ class User:
         if self in self.server.users:
             self.server.users.remove(self)
 
-        # This User object should now be garbage collected...
-
     def handle_recv(self):
         while self.recvbuffer.find("\n") != -1:
             recv = self.recvbuffer[:self.recvbuffer.find("\n")]
@@ -171,8 +165,6 @@ class User:
 
             if recv == '':
                 continue
-
-            # print self, recv
 
             parsed = self.parse_command(recv)
             command = parsed[0]
@@ -858,7 +850,7 @@ class User:
         self.quit("Quit: " + reason)
 
 
-class Channel:
+class Channel(object):
 
     def __init__(self, name):
         self.name = name
@@ -966,8 +958,6 @@ if __name__ == "__main__":
     server = Server()
     try:
         server.run()
-    # except Exception, e:
-    #    print e
     except KeyboardInterrupt:
         pass
     finally:
