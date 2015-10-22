@@ -335,8 +335,23 @@ class User(object):
         target = recv[1]
         msg = recv[2]
 
+        # Notice to channel
+        if target.startswith('#'):
+            # Find channel
+            channel = filter(lambda c: c.name.lower() ==
+                             target.lower(), self.server.channels)
+
+            if channel == []:
+                self.send_numeric(401, "%s :No such nick/channel" % target)
+                return
+            channel = channel[0]
+
+            # Broadcast message
+            self.broadcast([
+                user for user in channel.users if user != self],
+                "NOTICE %s :%s" % (target, msg))
         # Notice to user
-        if target[0] != "#":
+        else:
             # Find user
             user = filter(lambda u: u.nickname.lower() ==
                           target.lower(), self.server.users)
@@ -348,19 +363,6 @@ class User(object):
 
             # Broadcast message
             self.broadcast(user, "NOTICE %s :%s" % (target, msg))
-        else:
-            # Find channel
-            channel = filter(lambda c: c.name.lower() ==
-                             target.lower(), self.server.channels)
-
-            if channel == []:
-                self.send_numeric(401, "%s :No such nick/channel" % target)
-                return
-
-            # Broadcast message
-            self.broadcast([
-                user for user in channel[0].users if user != self],
-                "NOTICE %s :%s" % (target, msg))
 
     def handle_JOIN(self, recv):
         if len(recv) < 2:
