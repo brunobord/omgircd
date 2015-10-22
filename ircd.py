@@ -25,7 +25,11 @@ import time
 
 from select import select
 
-import config
+try:
+    import config
+except ImportError:
+    import sys
+    sys.exit("Error: no config.py file, please create one using the sample.")
 
 
 class User(object):

@@ -1,6 +1,6 @@
-hostname = "programble.co.cc"
-name = "ProgrambleIRC"
-creation = "recently"
+hostname = "irc.example.com"
+name = "ExampleIRC"
+creation = "2015"
 bind_host = ""
 bind_port = 6667
 motd = """                                         __               __
@@ -15,7 +15,7 @@ motd = """                                         __               __
                           #test - Main testing channel
                     #moo - Spam testing channel and cow farm
 
-                     Server Admin: curtis/programble/urtis
+                     Server Admin: thebigboss
 
                      WARNING: This server is very unstable
 """

@@ -12,6 +12,10 @@ complete IRC experience.
 Usage
 -----
 
+Before running this program, you may want to create a `config.py` file which
+will contain your configuration variables. Copy the `config.sample.py` file to
+create your own custom configuration.
+
 Omgircd is still in development and therefore does not have a complete
 launch script. The simplest way to launch Omgircd for now is to simply
 run `ircd.py`
