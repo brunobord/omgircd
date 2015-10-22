@@ -364,6 +364,18 @@ class User(object):
             # Broadcast message
             self.broadcast(user, "NOTICE %s :%s" % (target, msg))
 
+    def _valid_channel_name(self, name):
+        # Channel name must be less than 50
+        if len(name) > 50:
+            return False
+
+        # Check if channel name is valid
+        valid = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`~!@#$%^&*()-=_+[]{}\\|;':\"./<>?"  # noqa
+        for c in name:
+            if c not in valid:
+                return False
+        return True
+
     def handle_JOIN(self, recv):
         if len(recv) < 2:
             self.send_numeric(461, "JOIN :Not enough parameters")
@@ -374,34 +386,28 @@ class User(object):
                 self.handle_JOIN(("JOIN", channel))
             return
 
+        channel_name = recv[1]
+
         # Channels must begin with #
-        if recv[1][0] != '#' and recv[1] != "0":
-            self.send_numeric(403, "%s :No such channel" % recv[1])
+        if channel_name[0] != '#' and channel_name != "0":
+            self.send_numeric(403, "%s :No such channel" % channel_name)
             return
-        elif recv[1] == "0":
+        elif channel_name == "0":
             # Part all channels
             for channel in [channel.name for channel in self.channels]:
                 self.handle_PART(("PART", channel))
             return
 
-        # Channel name must be less than 50
-        if len(recv[1]) > 50:
-            self.send_numeric(479, "%s :Illegal channel name" % recv[1])
+        if not self._valid_channel_name(channel_name):
+            self.send_numeric(479, "%s :Illegal channel name" % channel_name)
             return
 
-        # Check if channel name is valid
-        valid = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`~!@#$%^&*()-=_+[]{}\\|;':\"./<>?"  # noqa
-        for c in recv[1]:
-            if c not in valid:
-                self.send_numeric(479, "%s :Illegal channel name" % recv[1])
-                return
-
-        channel = filter(lambda c: c.name.lower() == recv[
-                         1].lower(), self.server.channels)
+        channel = filter(lambda c: c.name.lower() == channel_name.lower(),
+                         self.server.channels)
 
         # Create non-existent channel
         if channel == []:
-            new = Channel(recv[1])
+            new = Channel(channel_name)
             self.server.channels.append(new)
             channel = [new]
 
