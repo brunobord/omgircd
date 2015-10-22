@@ -57,6 +57,7 @@ License
 -------
 
 Copyright © 2011, Curtis McEnroe <curtis@cmcenroe.me>
+Copyright © 2015, Bruno Bord <bruno@jehaisleprintemps.net>
 
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
