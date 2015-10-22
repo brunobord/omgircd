@@ -635,8 +635,8 @@ class User(object):
             self.send_numeric(461, "WHOIS :Not enough parameters")
             return
 
-        user = filter(lambda u: u.nickname.lower() ==
-                      recv[1].lower(), self.server.users)
+        user = filter(lambda u: u.nickname.lower() == recv[1].lower(),
+                      self.server.users)
 
         if user == []:
             self.send_numeric(401, "%s :No such nick/channel" % recv[1])
@@ -670,8 +670,8 @@ class User(object):
             self.send_numeric(461, "WHO :Not enough parameters")
             return
 
-        channel = filter(lambda c: c.name.lower() == recv[
-                         1].lower(), self.server.channels)
+        channel = filter(lambda c: c.name.lower() == recv[1].lower(),
+                         self.server.channels)
 
         if channel == []:
             self.send_numeric(315, "%s :End of /WHO list." % recv[1])
@@ -702,8 +702,8 @@ class User(object):
         else:
             reason = recv[3]
 
-        channel = filter(lambda c: c.name.lower() ==
-                         recv[1].lower(), self.channels)
+        channel = filter(lambda c: c.name.lower() == recv[1].lower(),
+                         self.channels)
 
         if channel == []:
             self.send_numeric(401, "%s :No such nick/channel" % recv[1])
@@ -742,8 +742,8 @@ class User(object):
             self.send_numeric(461, "INVITE :Not enough parameters")
             return
 
-        user = filter(lambda u: u.nickname.lower() ==
-                      recv[1].lower(), self.server.users)
+        user = filter(lambda u: u.nickname.lower() == recv[1].lower(),
+                      self.server.users)
 
         if user == []:
             self.send_numeric(401, "%s :No such nick/channel" % recv[1])
@@ -751,8 +751,8 @@ class User(object):
 
         user = user[0]
 
-        channel = filter(lambda c: c.name.lower() ==
-                         recv[2].lower(), self.channels)
+        channel = filter(lambda c: c.name.lower() == recv[2].lower(),
+                         self.channels)
 
         if channel == []:
             self.send_numeric(401, "%s :No such nick/channel" % recv[2])
@@ -781,8 +781,8 @@ class User(object):
             return
 
         for nick in recv[1:]:
-            user = filter(lambda u: u.nickname.lower() ==
-                          nick.lower(), self.server.users)
+            user = filter(lambda u: u.nickname.lower() == nick.lower(),
+                          self.server.users)
 
             if user == []:
                 self.send_numeric(401, "%s :No such nick/channel" % recv[1])
