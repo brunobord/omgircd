@@ -22,6 +22,7 @@
 
 import socket
 import time
+import logging
 
 from select import select
 
@@ -30,6 +31,12 @@ try:
 except ImportError:
     import sys
     sys.exit("Error: no config.py file, please create one using the sample.")
+
+logging.basicConfig(
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    level=logging.DEBUG,
+    datefmt='%Y-%m-%d %H:%M:%S %Z',
+)
 
 
 class User(object):
@@ -114,6 +121,8 @@ class User(object):
             user._send(":%s %s" % (self.fullname(), data))
 
     def welcome(self):
+        logging.info("New User: {}".format(self.nickname))
+
         self.send_numeric(001, ":Welcome to %s, %s" %
                           (self.server.name, self.fullname()))
         self.send_numeric(002, ":Your host is %s, running version %s" % (
@@ -161,6 +170,7 @@ class User(object):
         # Remove user from server users
         if self in self.server.users:
             self.server.users.remove(self)
+        logging.info("{} has quit".format(self.nickname))
 
     def handle_recv(self):
         while self.recvbuffer.find("\n") != -1:
@@ -414,6 +424,7 @@ class User(object):
             new = Channel(channel_name)
             self.server.channels.append(new)
             channel = [new]
+            logging.info("Channel created: {}".format(channel_name))
 
         channel = channel[0]
 
@@ -912,9 +923,11 @@ class Server(socket.socket):
         for user in self.users:
             user.quit("Server shutdown")
         self.close()
+        logging.info("Server shutdown")
 
 if __name__ == "__main__":
     server = Server()
+    logging.info("Starting server")
     try:
         server.run()
     except KeyboardInterrupt:
