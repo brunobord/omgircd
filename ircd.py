@@ -30,6 +30,11 @@ import config
 
 class User(object):
 
+    NORMAL_COMMANDS = (
+        "PING", "NICK", "USER", "MOTD", "PRIVMSG", "NOTICE", "JOIN",
+        "PART", "NAMES", "TOPIC", "ISON", "AWAY", "MODE", "WHOIS", "WHO",
+        "KICK", "VERSION", "LIST", "INVITE", "USERHOST", "QUIT",)
+
     def __init__(self, server, (sock, address)):
         self.socket = sock
         self.addr = address
@@ -168,52 +173,14 @@ class User(object):
 
             parsed = self.parse_command(recv)
             command = parsed[0]
-            if command.upper() == "PING":
-                self.handle_PING(parsed)
+            if command.upper() in self.NORMAL_COMMANDS:
+                func = getattr(self, "handle_{}".format(command.upper()))
+                func(parsed)
+            # Special cases
             elif command.upper() == "PONG":
                 pass
-            elif command.upper() == "NICK":
-                self.handle_NICK(parsed)
-            elif command.upper() == "USER":
-                self.handle_USER(parsed)
             elif self.nickname == '*' or self.username == 'unknown':
                 self.send_numeric(451, "%s :You have not registered" % command)
-            elif command.upper() == "MOTD":
-                self.handle_MOTD(parsed)
-            elif command.upper() == "PRIVMSG":
-                self.handle_PRIVMSG(parsed)
-            elif command.upper() == "NOTICE":
-                self.handle_NOTICE(parsed)
-            elif command.upper() == "JOIN":
-                self.handle_JOIN(parsed)
-            elif command.upper() == "PART":
-                self.handle_PART(parsed)
-            elif command.upper() == "NAMES":
-                self.handle_NAMES(parsed)
-            elif command.upper() == "TOPIC":
-                self.handle_TOPIC(parsed)
-            elif command.upper() == "ISON":
-                self.handle_ISON(parsed)
-            elif command.upper() == "AWAY":
-                self.handle_AWAY(parsed)
-            elif command.upper() == "MODE":
-                self.handle_MODE(parsed)
-            elif command.upper() == "WHOIS":
-                self.handle_WHOIS(parsed)
-            elif command.upper() == "WHO":
-                self.handle_WHO(parsed)
-            elif command.upper() == "KICK":
-                self.handle_KICK(parsed)
-            elif command.upper() == "VERSION":
-                self.handle_VERSION(parsed)
-            elif command.upper() == "LIST":
-                self.handle_LIST(parsed)
-            elif command.upper() == "INVITE":
-                self.handle_INVITE(parsed)
-            elif command.upper() == "USERHOST":
-                self.handle_USERHOST(parsed)
-            elif command.upper() == "QUIT":
-                self.handle_QUIT(parsed)
             else:
                 self.send_numeric(421, "%s :Unknown command" % command)
 
