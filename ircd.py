@@ -71,7 +71,7 @@ class User(object):
         else:
             try:
                 self.hostname = socket.gethostbyaddr(self.ip)[0]
-            except:
+            except Exception:
                 self.hostname = self.ip
             self.server.hostcache[self.ip] = self.hostname
 
@@ -924,6 +924,7 @@ class Server(socket.socket):
             user.quit("Server shutdown")
         self.close()
         logging.info("Server shutdown")
+
 
 if __name__ == "__main__":
     server = Server()
