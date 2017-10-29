@@ -839,7 +839,7 @@ class Channel(object):
 class Server(socket.socket):
 
     def __init__(self):
-        socket.socket.__init__(self, socket.AF_INET, socket.SOCK_STREAM)
+        super(Server, self).__init__(socket.AF_INET, socket.SOCK_STREAM)
 
         self.users = []
         self.channels = []
