@@ -918,7 +918,8 @@ class Server(socket.socket):
             # Send out pings
             for user in _users:
                 try:
-                    user.socket.send("PING :%s\r\n" % self.hostname)
+                    message = "PING :%s\r\n" % self.hostname
+                    user.socket.send(bytes(message, 'utf-8'))
                 except socket.error:
                     user.quit("Write error: Connection reset by peer")
 
