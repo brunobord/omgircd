@@ -143,8 +143,9 @@ class User(object):
     def quit(self, reason):
         # Send error to user
         try:
-            self.socket.send("ERROR :Closing link: (%s) [%s]\r\n" % (
-                self.fullname(), reason))
+            message = "ERROR :Closing link: (%s) [%s]\r\n" % (
+                self.fullname(), reason)
+            self.socket.send(bytes(message, 'utf-8'))
         except socket.error:
             pass
 
@@ -879,6 +880,7 @@ class Server(socket.socket):
             for user in [user for user in read if user != self]:
                 try:
                     recv = user.socket.recv(4096)
+                    recv = recv.decode()
                 except socket.error:
                     user.quit("Read error: Connection reset by peer")
                 if recv == '':
@@ -895,7 +897,8 @@ class Server(socket.socket):
             # Send to each user
             for user in write:
                 try:
-                    sent = user.socket.send(user.sendbuffer)
+                    message = bytes(user.sendbuffer, 'utf-8')
+                    sent = user.socket.send(message)
                     user.sendbuffer = user.sendbuffer[sent:]
                 except socket.error:
                     user.quit("Write error: Connection reset by peer")
