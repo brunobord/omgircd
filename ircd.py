@@ -46,7 +46,7 @@ class User(object):
         "PART", "NAMES", "TOPIC", "ISON", "AWAY", "MODE", "WHOIS", "WHO",
         "KICK", "VERSION", "LIST", "INVITE", "USERHOST", "QUIT",)
 
-    def __init__(self, server, (sock, address)):
+    def __init__(self, server, sock, address):
         self.socket = sock
         self.addr = address
         self.ip = self.addr[0]
@@ -123,17 +123,17 @@ class User(object):
     def welcome(self):
         logging.info("New User: {}".format(self.nickname))
 
-        self.send_numeric(001, ":Welcome to %s, %s" %
+        self.send_numeric(1, ":Welcome to %s, %s" %
                           (self.server.name, self.fullname()))
-        self.send_numeric(002, ":Your host is %s, running version %s" % (
+        self.send_numeric(2, ":Your host is %s, running version %s" % (
             self.server.hostname, self.server.version))
-        self.send_numeric(003, ":This server was created %s" %
+        self.send_numeric(3, ":This server was created %s" %
                           self.server.creationtime)
-        self.send_numeric(004, "%s %s  bov" %
+        self.send_numeric(4, "%s %s  bov" %
                           (self.server.hostname, self.server.version))
         # http://www.irc.org/tech_docs/005.html
         self.send_numeric(
-            005, "CHANTYPES=# PREFIX=(ov)@+ CHANMODES=b,,,mnt"
+            5, "CHANTYPES=# PREFIX=(ov)@+ CHANMODES=b,,,mnt"
                  " NICKLEN=16 CHANNELLEN=50 TOPICLEN=300 AWAYLEN=160"
                  " NETWORK=%s :Are supported by this server"
                  % self.server.name)
@@ -872,7 +872,8 @@ class Server(socket.socket):
             # Is there a new connection to accept?
             if self in read:
                 # Accept connection and create new user object
-                User(self, self.accept())
+                sock, address = self.accept()
+                User(self, sock, address)
 
             # Read from each user
             for user in [user for user in read if user != self]:
