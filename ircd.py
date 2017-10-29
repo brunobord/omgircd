@@ -80,7 +80,7 @@ class User(object):
         self.channels = []
 
         # Max connections per ip
-        connections = filter(lambda u: u.ip == self.ip, self.server.users)
+        connections = [u for u in self.server.users if u.ip == self.ip]
         if len(connections) > 3:
             self.quit("Too many connections from %s" % self.ip)
 
@@ -352,9 +352,9 @@ class User(object):
 
         # Notice to channel
         if target.startswith('#'):
-            # Find channel
-            channel = filter(lambda c: c.name.lower() ==
-                             target.lower(), self.server.channels)
+            # Find eventual channel
+            # FIXME: better find
+            channel = [c for c in self.server.channels if c.name.lower() == target.lower()]
 
             if channel == []:
                 self.send_numeric(401, "%s :No such nick/channel" % target)
@@ -367,9 +367,9 @@ class User(object):
                 "NOTICE %s :%s" % (target, msg))
         # Notice to user
         else:
-            # Find user
-            user = filter(lambda u: u.nickname.lower() ==
-                          target.lower(), self.server.users)
+            # Find eventual user
+            # FIXME: Better find
+            user = [u for u in self.server.users if u.nickname.lower() == target.lower()]
 
             # User does not exist
             if user == []:
@@ -417,8 +417,8 @@ class User(object):
             self.send_numeric(479, "%s :Illegal channel name" % channel_name)
             return
 
-        channel = filter(lambda c: c.name.lower() == channel_name.lower(),
-                         self.server.channels)
+        # FIXME: better find.
+        channel = [c for c in self.server.channels if c.name.lower() == channel_name.lower()]
 
         # Create non-existent channel
         if channel == []:
@@ -464,8 +464,8 @@ class User(object):
         else:
             reason = ""
 
-        channel = filter(lambda c: c.name.lower() ==
-                         target.lower(), self.channels)
+        # FIXME: better find
+        channel = [c for c in self.channels if c.name.lower() == target.lower()]
 
         if channel == []:
             self.send_numeric(442, "%s :You're not on that channel" % target)
@@ -482,8 +482,8 @@ class User(object):
             self.send_numeric(461, "NAMES :Not enough parameters")
             return
 
-        channel = filter(lambda c: c.name.lower() == recv[1].lower(),
-                         self.server.channels)
+        # FIXME: better find
+        channel = [c for c in self.server.channels if c.name.lower() == recv[1].lower()]
 
         if channel == []:
             self.send_numeric(401, "%s :No such nick/channel" % recv[1])
@@ -511,8 +511,8 @@ class User(object):
 
         if len(recv) < 3:
             # Send back topic
-            channel = filter(lambda c: c.name.lower() == recv[1].lower(),
-                             self.server.channels)
+            # FIXME: Better find
+            channel = [c for c in self.server.channels if c.name.lower() == recv[1].lower()]
             if channel == []:
                 self.send_numeric(401, "%s :No such nick/channel" % recv[1])
                 return
@@ -527,8 +527,8 @@ class User(object):
                 channel.name, channel.topic_author, channel.topic_time))
         else:
             # Set topic
-            channel = filter(lambda c: c.name.lower() == recv[1].lower(),
-                             self.server.channels)
+            # FIXME: Better find
+            channel = [c for c in self.server.channels if c.name.lower() == recv[1].lower()]
             if channel == []:
                 self.send_numeric(401, "%s :No such nick/channel" % recv[1])
                 return
@@ -577,9 +577,9 @@ class User(object):
             return
 
         channel_name = recv[1]
-        channel = filter(lambda c: c.name.lower() == channel_name.lower(),
-                         self.server.channels)
-        if channel == []:
+        # FIXME: better find
+        channel = [c for c in self.server.channels if c.name.lower() == channel_name.lower()]
+        if not channel:
             self.send_numeric(401, "%s :No such nick/channel" % recv[1])
             return
 
@@ -633,8 +633,8 @@ class User(object):
             modes = zip(recv[3:], modes)
 
             for nick, mode in modes:
-                user = filter(lambda u: u.nickname.lower() == nick.lower(),
-                              channel.users)
+                # FIXME: Better find
+                user = [u for u in channel.users if u.nickname.lower() == nick.lower()]
                 if user != []:
                     user = user[0]
                     if mode[0] == '+':
@@ -651,8 +651,8 @@ class User(object):
             self.send_numeric(461, "WHOIS :Not enough parameters")
             return
 
-        user = filter(lambda u: u.nickname.lower() == recv[1].lower(),
-                      self.server.users)
+        # FIXME: better find
+        user = [u for u in self.server.users if u.nickname.lower() == recv[1].lower()]
 
         if user == []:
             self.send_numeric(401, "%s :No such nick/channel" % recv[1])
@@ -686,9 +686,8 @@ class User(object):
             self.send_numeric(461, "WHO :Not enough parameters")
             return
 
-        channel = filter(lambda c: c.name.lower() == recv[1].lower(),
-                         self.server.channels)
-
+        # FIXME: better find
+        channel = [c for c in self.server.channels if c.name.lower() == recv[1].lower()]
         if channel == []:
             self.send_numeric(315, "%s :End of /WHO list." % recv[1])
             return
@@ -718,16 +717,16 @@ class User(object):
         else:
             reason = recv[3]
 
-        channel = filter(lambda c: c.name.lower() == recv[1].lower(),
-                         self.channels)
+        # FIXME: Better find
+        channel = [c for c in self.channels if c.name.lower() == recv[1].lower()]
 
         if channel == []:
             self.send_numeric(401, "%s :No such nick/channel" % recv[1])
             return
         channel = channel[0]
 
-        user = filter(lambda u: u.nickname.lower() ==
-                      recv[2].lower(), channel.users)
+        # FIXME: Better find
+        user = [u for u in channel.users if u.nickname.lower() == recv[2].lower()]
 
         if user == []:
             self.send_numeric(401, "%s :No such nick/channel" % recv[2])
@@ -758,8 +757,8 @@ class User(object):
             self.send_numeric(461, "INVITE :Not enough parameters")
             return
 
-        user = filter(lambda u: u.nickname.lower() == recv[1].lower(),
-                      self.server.users)
+        # FIXME: Better find
+        user = [u for u in self.server.users if u.nickname.lower() == recv[1].lower()]
 
         if user == []:
             self.send_numeric(401, "%s :No such nick/channel" % recv[1])
@@ -767,8 +766,8 @@ class User(object):
 
         user = user[0]
 
-        channel = filter(lambda c: c.name.lower() == recv[2].lower(),
-                         self.channels)
+        # FIXME: Better find
+        channel = [c for c in self.channels if c.name.lower() == recv[2].lower()]
 
         if channel == []:
             self.send_numeric(401, "%s :No such nick/channel" % recv[2])
@@ -797,8 +796,8 @@ class User(object):
             return
 
         for nick in recv[1:]:
-            user = filter(lambda u: u.nickname.lower() == nick.lower(),
-                          self.server.users)
+            # FIXME: Better find
+            user = [u for u in self.server.users if u.nickname.lower() == nick.lower()]
 
             if user == []:
                 self.send_numeric(401, "%s :No such nick/channel" % recv[1])
