@@ -50,6 +50,17 @@ def find_channel(channel_name, source):
     return None
 
 
+def find_user(user_name, source):
+    """
+    Search for a user by name on the given object
+    """
+    name = user_name.lower()
+    for user in source.users:
+        if user.nickname.lower() == name:
+            return user
+    return None
+
+
 class User(object):
 
     NORMAL_COMMANDS = (
@@ -374,22 +385,22 @@ class User(object):
                 return
 
             # Broadcast message
-            self.broadcast([
-                user for user in channel.users if user != self],
-                "NOTICE %s :%s" % (target, msg))
+            self.broadcast(
+                [user for user in channel.users if user != self],
+                "NOTICE %s :%s" % (target, msg)
+            )
         # Notice to user
         else:
             # Find eventual user
-            # FIXME: Better find
-            user = [u for u in self.server.users if u.nickname.lower() == target.lower()]
+            user = self.server.find_user(target)
 
             # User does not exist
-            if user == []:
+            if not user:
                 self.send_numeric(401, "%s :No such nick/channel" % target)
                 return
 
             # Broadcast message
-            self.broadcast(user, "NOTICE %s :%s" % (target, msg))
+            self.broadcast([user], "NOTICE %s :%s" % (target, msg))
 
     def _valid_channel_name(self, name):
         # FIXME: move this into a function
@@ -626,10 +637,8 @@ class User(object):
             modes = zip(recv[3:], modes)
 
             for nick, mode in modes:
-                # FIXME: Better find
-                user = [u for u in channel.users if u.nickname.lower() == nick.lower()]
-                if user != []:
-                    user = user[0]
+                user = channel.find_user(nick)
+                if user:
                     if mode[0] == '+':
                         channel.usermodes[user] += mode[1]
                     else:
@@ -644,14 +653,13 @@ class User(object):
             self.send_numeric(461, "WHOIS :Not enough parameters")
             return
 
-        # FIXME: better find
-        user = [u for u in self.server.users if u.nickname.lower() == recv[1].lower()]
+        nickname = recv[1]
+        user = self.server.find_user(nickname)
 
-        if user == []:
+        if not user:
             self.send_numeric(401, "%s :No such nick/channel" % recv[1])
             self.send_numeric(318, "%s :End of /WHOIS list." % recv[1])
             return
-        user = user[0]
 
         self.send_numeric(311, "%s %s %s * :%s" % (
             user.nickname, user.username, user.hostname, user.realname))
@@ -717,13 +725,13 @@ class User(object):
             self.send_numeric(401, "%s :No such nick/channel" % channel_name)
             return
 
-        # FIXME: Better find
-        user = [u for u in channel.users if u.nickname.lower() == recv[2].lower()]
+        # Find user on channel
+        nickname = recv[2]
+        user = channel.find_user(recv[2])
 
-        if user == []:
-            self.send_numeric(401, "%s :No such nick/channel" % recv[2])
+        if not user:
+            self.send_numeric(401, "%s :No such nick/channel" % nickname)
             return
-        user = user[0]
 
         if 'o' not in channel.usermodes[self]:
             self.send_numeric(
@@ -749,14 +757,13 @@ class User(object):
             self.send_numeric(461, "INVITE :Not enough parameters")
             return
 
-        # FIXME: Better find
-        user = [u for u in self.server.users if u.nickname.lower() == recv[1].lower()]
+        # Find server user
+        nickname = recv[1]
+        user = self.server.find_user(nickname)
 
-        if user == []:
-            self.send_numeric(401, "%s :No such nick/channel" % recv[1])
+        if not user:
+            self.send_numeric(401, "%s :No such nick/channel" % nickname)
             return
-
-        user = user[0]
 
         target = recv[2]
         channel = self.find_channel(target)
@@ -786,14 +793,11 @@ class User(object):
             return
 
         for nick in recv[1:]:
-            # FIXME: Better find
-            user = [u for u in self.server.users if u.nickname.lower() == nick.lower()]
+            user = self.server.find_user(nick)
 
-            if user == []:
-                self.send_numeric(401, "%s :No such nick/channel" % recv[1])
+            if not user:
+                self.send_numeric(401, "%s :No such nick/channel" % nick)
                 continue
-
-            user = user[0]
 
             self.send_numeric(
                 302, "%s=%s%s@%s" % (
@@ -824,6 +828,9 @@ class Channel(object):
 
     def __repr__(self):
         return "<Channel '%s'>" % self.name
+
+    def find_user(self, user_name):
+        return find_user(user_name, self)
 
 
 class Server(socket.socket):
@@ -924,6 +931,13 @@ class Server(socket.socket):
         Search for channel by name on the server
         """
         return find_channel(channel_name, self)
+
+    def find_user(self, user_name):
+        """
+        Search for a user on the server
+        """
+        return find_user(user_name, self)
+
 
 if __name__ == "__main__":
     server = Server()
