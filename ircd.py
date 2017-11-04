@@ -65,12 +65,26 @@ def is_valid_channel_name(name):
     """
     Return True if the given name is a valid channel name.
     """
+    # Check channel name length
     if len(name) > 50:
         return False
 
     # Check if channel name is valid
     valid = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`~!@#$%^&*()-=_+[]{}\\|;':\"./<>?"  # noqa
     invalid = set(name) - set(valid)
+    return not bool(invalid)
+
+
+def is_valid_nickname(nick):
+    """
+    Return True if the given name is a valid nickname.
+    """
+    # Check nick length
+    if len(nick) > 16:
+        return False
+
+    valid = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`^-_[]{}|\\"  # noqa
+    invalid = set(nick) - set(valid)
     return not bool(invalid)
 
 
@@ -253,17 +267,6 @@ class User(object):
         self.send_numeric(351, "%s. %s :http://github.com/programble/omgircd" %
                           (self.server.version, self.server.hostname))
 
-    def _valid_nickname(self, nick):
-        # Check nick characters
-        valid = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`^-_[]{}|\\"  # noqa
-        for c in nick:
-            if c not in valid:
-                return False
-        # Check nick length
-        if len(nick) > 16:
-            return False
-        return True
-
     def handle_NICK(self, recv):
         if len(recv) < 2:
             # No nickname given
@@ -277,7 +280,7 @@ class User(object):
             return
 
         # Check if nick is valid
-        if not self._valid_nickname(nick):
+        if not is_valid_nickname(nick):
             self.send_numeric(432, "%s :Erroneous Nickname" % nick)
             return
 
