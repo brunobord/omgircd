@@ -61,6 +61,19 @@ def find_user(user_name, source):
     return None
 
 
+def is_valid_channel_name(name):
+    """
+    Return True if the given name is a valid channel name.
+    """
+    if len(name) > 50:
+        return False
+
+    # Check if channel name is valid
+    valid = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`~!@#$%^&*()-=_+[]{}\\|;':\"./<>?"  # noqa
+    invalid = set(name) - set(valid)
+    return not bool(invalid)
+
+
 class User(object):
 
     NORMAL_COMMANDS = (
@@ -402,19 +415,6 @@ class User(object):
             # Broadcast message
             self.broadcast([user], "NOTICE %s :%s" % (target, msg))
 
-    def _valid_channel_name(self, name):
-        # FIXME: move this into a function
-        # Channel name must be less than 50
-        if len(name) > 50:
-            return False
-
-        # Check if channel name is valid
-        valid = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`~!@#$%^&*()-=_+[]{}\\|;':\"./<>?"  # noqa
-        for c in name:
-            if c not in valid:
-                return False
-        return True
-
     def handle_JOIN(self, recv):
         if len(recv) < 2:
             self.send_numeric(461, "JOIN :Not enough parameters")
@@ -437,7 +437,7 @@ class User(object):
                 self.handle_PART(("PART", channel.name))
             return
 
-        if not self._valid_channel_name(channel_name):
+        if not is_valid_channel_name(channel_name):
             self.send_numeric(479, "%s :Illegal channel name" % channel_name)
             return
 
