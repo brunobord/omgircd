@@ -185,10 +185,10 @@ class User(object):
                           (self.server.hostname, self.server.version))
         # http://www.irc.org/tech_docs/005.html
         self.send_numeric(
-            5, "CHANTYPES=# PREFIX=(ov)@+ CHANMODES=b,,,mnt"
-                 " NICKLEN=16 CHANNELLEN=50 TOPICLEN=300 AWAYLEN=160"
-                 " NETWORK=%s :Are supported by this server"
-                 % self.server.name)
+            5, ("CHANTYPES=# PREFIX=(ov)@+ CHANMODES=b,,,mnt"
+                " NICKLEN=16 CHANNELLEN=50 TOPICLEN=300 AWAYLEN=160"
+                " NETWORK=%s :Are supported by this server") % self.server.name
+        )
         # MOTD
         self.handle_MOTD(("MOTD",))
 
