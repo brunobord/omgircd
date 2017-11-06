@@ -21,6 +21,7 @@
 #       MA 02110-1301, USA.
 
 import traceback
+from importlib import reload
 
 import ircd
 
@@ -30,8 +31,8 @@ while True:
         server.run()
     except (KeyboardInterrupt, Exception):
         traceback.print_exc()
-        x = raw_input("[r/q] ")
-        if x == 'q':
+        x = input("[r/q] ")
+        if x.lower() == 'q':
             break
         else:
             reload(ircd)
@@ -41,7 +42,7 @@ while True:
             server.channels = old.channels
             server.hostcache = old.hostcache
             for olduser in old.users:
-                newuser = ircd.User(server, (olduser.socket, olduser.addr))
+                newuser = ircd.User(server, olduser.socket, olduser.addr)
                 newuser.nickname = olduser.nickname
                 newuser.username = olduser.nickname
                 newuser.realname = olduser.realname
