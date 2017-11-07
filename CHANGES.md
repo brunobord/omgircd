@@ -12,10 +12,10 @@ Changes from [upstream](https://github.com/programble/omgircd).
 * Better nickname validation and channel name validation functions (cleaner and optimized).
 * Changed the configuration loading (using the good'ol' `ConfigParser` module).
 * Now the `PING` timeout time a configurable parameter.
+* test infrastructure & adding tests (WIP).
 
 ## Roadmap
 
-* test infrastructure.
 * Add tests for... everything? (the goal is to cover at least the `User` + `Channel` + `Server` classes).
 * Python3 test grid to test against different Python versions.
 * Log more things more seriously (that helps so much for debugging).

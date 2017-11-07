@@ -1,4 +1,8 @@
+# pointless files
 *~
 *.pyc
-.tox/
+# Configuration, keep only the template (sample)
 config.ini
+# Test-related
+.tox/
+.cache/

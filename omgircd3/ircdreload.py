@@ -25,7 +25,9 @@ from importlib import reload
 
 import ircd
 
-server = ircd.Server(ircd.load_configuration())
+args = ircd.load_args()
+config = ircd.load_configuration(args.config)
+server = ircd.Server(config)
 while True:
     try:
         server.run()
@@ -37,7 +39,10 @@ while True:
         else:
             old = server
             reload(ircd)
-            server = ircd.Server(ircd.load_configuration())
+            # Reload config
+            args = ircd.load_args()
+            config = ircd.load_configuration(args.config)
+            server = ircd.Server(config)
             server.channels = old.channels
             server.hostcache = old.hostcache
             for olduser in old.users:

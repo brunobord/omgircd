@@ -24,20 +24,20 @@ Omgircd is still in development and therefore does not have a complete
 launch script. The simplest way to launch Omgircd for now is to simply
 run `ircd.py`
 
-    python ircd.py
+    python omgircd3/ircd.py
 
 Optionally,you may want to create a `config.ini` file which will contain your
 configuration variables. Copy the `config.sample.ini` file to create your own
 custom configuration, and run the following:
 
-    python ircd.py --config=path/to/your/config.ini
+    python omgircd3/ircd.py --config=path/to/your/config.ini
 
 An alternative method to run Omgircd is using the `ircdreload.py`
 script. This launch script provides a means to reload the IRCd code on
 the fly while it is running. This script is only recommended for use
 in development.
 
-    python ircdreload.py
+    python omgircd3/ircdreload.py
 
 In order to reload the IRCd code, type Control+c (`C-c`). You will then
 be prompted with `[r/q]`. Typing `r` at this prompt will cause all
@@ -52,7 +52,7 @@ going down.
 
 As for the `ircd.py` script, you can also use your configuration file:
 
-    python ircdreload.py --config=path/to/your/config.ini
+    python omgircd3/ircdreload.py --config=path/to/your/config.ini
 
 
 Configuration
