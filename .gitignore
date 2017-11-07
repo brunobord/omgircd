@@ -1,4 +1,4 @@
 *~
 *.pyc
 .tox/
-config.py
+config.ini

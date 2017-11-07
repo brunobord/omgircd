@@ -23,20 +23,41 @@
 import socket
 import time
 import logging
+import argparse
+import configparser
 
 from select import select
-
-try:
-    import config
-except ImportError:
-    import sys
-    sys.exit("Error: no config.py file, please create one using the sample.")
 
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     level=logging.DEBUG,
     datefmt='%Y-%m-%d %H:%M:%S %Z',
 )
+
+
+def load_configuration():
+    """
+    Load configuration file
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config', help='Path to the configuration file')
+    args = parser.parse_args()
+
+    config = configparser.ConfigParser(
+        default_section='server',
+        defaults={
+            'hostname': 'localhost',
+            'name': 'omgircd3',
+            'creation': 2017,
+            'bind_host': '',
+            'bind_port': 6667,
+            'motd': 'Hello and welcome to this IRC server',
+        },
+        interpolation=None,
+    )
+    if args.config:
+        config.read(args.config)
+    return config
 
 
 def find_channel(channel_name, source):
@@ -838,24 +859,28 @@ class Channel(object):
 
 class Server(socket.socket):
 
-    def __init__(self):
+    def __init__(self, config):
         super(Server, self).__init__(socket.AF_INET, socket.SOCK_STREAM)
 
+        self.config = config
         self.users = []
         self.channels = []
 
         self.hostcache = {}
 
-        self.hostname = config.hostname
-        self.name = config.name
-        self.creationtime = config.creation
+        self.hostname = self.config.get('server', 'hostname')
+        self.name = self.config.get('server', 'name')
+        self.creationtime = self.config.getint('server', 'creation')
         self.version = "omgircd-0.1.0"
-        self.motd = config.motd
+        self.motd = self.config.get('server', 'motd')
 
     def run(self):
         # Bind port and listen
         self.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.bind((config.bind_host, config.bind_port))
+        self.bind((
+            self.config.get('server', 'bind_host'),
+            self.config.getint('server', 'bind_port')
+        ))
         self.listen(5)
 
         # Main select loop (this is where the magic happens)
@@ -943,7 +968,10 @@ class Server(socket.socket):
 
 
 if __name__ == "__main__":
-    server = Server()
+
+    config = load_configuration()
+
+    server = Server(config)
     logging.info("Starting server")
     try:
         server.run()
