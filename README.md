@@ -1,11 +1,17 @@
 Omgircd
 =======
 
-*Note: I'm currently trying to put this a bit up-to-date. I'm not sure it's going somewhere, please bear with me.*
+This is a revamped version of [programble/omgircd](https://github.com/programble/omgircd).
+
+It looks like the original project is not supported anymore. As an exercise and
+because we love so much to reinvent the wheel, I've tried to port this sweet
+IRC server to Python3 and to improve it in a way or another.
+
+To see the changes between upstream and this version, please read the
+[CHANGES.md](CHANGES.md) document. This document also contains a mini-roadmap
+of the things I'd like to improve in the future.
 
 **WARNING: This version is Python 3 only ; tested with Python 3.6.**
-
-This project was originally available at [programble/omgircd](https://github.com/programble/omgircd).
 
 Omgircd is an Internet Relay Chat Daemon (IRCd) written in Python. It
 is designed to be as simple as possible, while still providing a
