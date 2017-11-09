@@ -11,17 +11,16 @@ Changes from [upstream](https://github.com/programble/omgircd).
 * Better `find_channel` and `find_user` functions (cleaner and optimized).
 * Better nickname validation and channel name validation functions (cleaner and optimized).
 * Changed the configuration loading (using the good'ol' `ConfigParser` module).
+* Now the `PING` timeout time a configurable parameter.
 
 ## Roadmap
 
-* BUGFIX: I've fumbled the ping timeout. Needs to be fixed.
-  * Make the `PING` timeout time a configurable parameter.
 * test infrastructure.
 * Add tests for... everything? (the goal is to cover at least the `User` + `Channel` + `Server` classes).
 * Python3 test grid to test against different Python versions.
 * Log more things more seriously (that helps so much for debugging).
 * Build a package and upload it on PyPI. Maybe rename this as `omgircd3`?
-* Take the [progress.md](progress.md) document and try work on the missing commands.
+* Take the [progress.md](progress.md) document and try to work on the missing commands.
 
 ### Things that WON'T change
 

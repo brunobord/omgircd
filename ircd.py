@@ -52,6 +52,7 @@ def load_configuration():
             'bind_host': '',
             'bind_port': 6667,
             'motd': 'Hello and welcome to this IRC server',
+            'ping_timeout': 250.
         },
         interpolation=None,
     )
@@ -873,6 +874,7 @@ class Server(socket.socket):
         self.creationtime = self.config.getint('server', 'creation')
         self.version = "omgircd-0.1.0"
         self.motd = self.config.get('server', 'motd')
+        self.ping_timeout = self.config.getfloat('server', 'ping_timeout')
 
     def run(self):
         # Bind port and listen
@@ -935,12 +937,15 @@ class Server(socket.socket):
 
             # Ping timeouts
             _users = [user for user in self.users
-                      if time.time() - user.ping > 250.0]
+                      if (time.time() - user.ping) > self.ping_timeout]
             for user in _users:
                 user.quit("Ping timeout: %d seconds" %
                           int(time.time() - user.ping))
 
-            # Send out pings
+            # Send out pings to not-so old users
+            half_timeout = self.ping_timeout / 2.0
+            _users = [user for user in self.users
+                      if (time.time() - user.ping) > half_timeout]
             for user in _users:
                 try:
                     message = "PING :%s\r\n" % self.hostname
