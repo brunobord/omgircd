@@ -13,6 +13,7 @@ Changes from [upstream](https://github.com/programble/omgircd).
 * Changed the configuration loading (using the good'ol' `ConfigParser` module).
 * Now the `PING` timeout time a configurable parameter.
 * test infrastructure & adding tests (WIP).
+* Travis CI setup.
 
 ## Roadmap
 

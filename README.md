@@ -1,6 +1,8 @@
 Omgircd
 =======
 
+[![Travis Build Status](https://travis-ci.org/brunobord/omgircd.svg?branch=master)](https://travis-ci.org/brunobord/omgircd)
+
 This is a revamped version of [programble/omgircd](https://github.com/programble/omgircd).
 
 It looks like the original project is not supported anymore. As an exercise and
