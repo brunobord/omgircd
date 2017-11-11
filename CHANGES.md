@@ -14,6 +14,8 @@ Changes from [upstream](https://github.com/programble/omgircd).
 * Now the `PING` timeout time a configurable parameter.
 * test infrastructure & adding tests (WIP).
 * Travis CI setup.
+* Rename this fork omgircd3
+* Build a package and upload it on PyPI.
 
 ## Roadmap
 
@@ -21,7 +23,6 @@ Changes from [upstream](https://github.com/programble/omgircd).
 * Python3 test grid to test against different Python versions.
 * Log more things more seriously (that helps so much for debugging).
 * Changes channels and users properties and make them faster (dicts over lists).
-* Build a package and upload it on PyPI. Maybe rename this as `omgircd3`?
 * Take the [progress.md](progress.md) document and try to work on the missing commands.
 
 ### Things that WON'T change

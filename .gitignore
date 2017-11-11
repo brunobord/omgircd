@@ -6,3 +6,6 @@ config.ini
 # Test-related
 .tox/
 .cache/
+# Packaging
+dist/
+*.egg-info/

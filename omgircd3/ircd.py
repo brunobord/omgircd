@@ -25,8 +25,10 @@ import time
 import logging
 import argparse
 import configparser
-
 from select import select
+
+from omgircd3 import __version__
+
 
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -884,7 +886,7 @@ class Server(socket.socket):
         self.hostname = self.config.get('server', 'hostname')
         self.name = self.config.get('server', 'name')
         self.creationtime = self.config.getint('server', 'creation')
-        self.version = "omgircd-0.1.0"
+        self.version = "omgircd3-{}".format(__version__)
         self.motd = self.config.get('server', 'motd')
         self.ping_timeout = self.config.getfloat('server', 'ping_timeout')
 
@@ -997,8 +999,10 @@ class Server(socket.socket):
         self.channels.remove(channel)
 
 
-if __name__ == "__main__":
-
+def run():
+    """
+    Run omgircd3 IRC server
+    """
     args = load_args()
     config = load_configuration(args.config)
 
@@ -1010,3 +1014,7 @@ if __name__ == "__main__":
         pass
     finally:
         server.shutdown()
+
+
+if __name__ == "__main__":
+    run()
