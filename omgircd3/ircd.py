@@ -28,7 +28,16 @@ import argparse
 import configparser
 from select import select
 
-from omgircd3 import __version__
+try:
+    from omgircd3 import __version__
+except ImportError:
+    import importlib.util
+    from os.path import dirname, join
+    fullpath = join(dirname(__file__), '__init__.py')
+    spec = importlib.util.spec_from_file_location("omgircd3", fullpath)
+    omgircd3 = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(omgircd3)
+    __version__ = omgircd3.__version__
 
 
 logging.basicConfig(
