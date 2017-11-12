@@ -96,7 +96,7 @@ def is_valid_channel_name(name):
     Return True if the given name is a valid channel name.
     """
     # Check channel name length
-    if len(name) > 50:
+    if len(name) == 0 or len(name) > 50:
         return False
 
     # Check if channel name is valid
@@ -110,7 +110,7 @@ def is_valid_nickname(nick):
     Return True if the given name is a valid nickname.
     """
     # Check nick length
-    if len(nick) > 16:
+    if len(nick) == 0 or len(nick) > 16:
         return False
 
     valid = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`^-_[]{}|\\"  # noqa
