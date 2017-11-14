@@ -27,6 +27,7 @@ import logging
 import argparse
 import configparser
 from select import select
+from os import environ
 
 try:
     from omgircd3 import __version__
@@ -40,9 +41,13 @@ except ImportError:
     __version__ = omgircd3.__version__
 
 
+# If logging level is set via the env variable
+logging_level = environ.get('LOGGING_LEVEL', 'INFO')
+logging_level = getattr(logging, logging_level, logging.INFO)
+
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
-    level=logging.DEBUG,
+    level=logging_level,
     datefmt='%Y-%m-%d %H:%M:%S %Z',
 )
 

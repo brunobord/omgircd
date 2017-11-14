@@ -74,6 +74,17 @@ more configurable afterwards. The few configuration options available
 are located in ``config.sample.ini``. Use this file as a template to
 configure it your own way.
 
+Logging level
+"""""""""""""
+
+By default, the logging level is set to ``INFO``. You can change this using the
+``LOGGING_LEVEL`` environment variable, like this:
+
+::
+
+    LOGGING_LEVEL=DEBUG python omgircd3/ircd.py
+
+
 Progress
 --------
 

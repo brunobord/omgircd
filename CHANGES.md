@@ -16,6 +16,7 @@ Changes from [upstream](https://github.com/programble/omgircd).
 * Travis CI setup.
 * Rename this fork omgircd3
 * Build a package and upload it on PyPI.
+* Logging level is now configurable (via an environment variable)
 
 ## Roadmap
 
