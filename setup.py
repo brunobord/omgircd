@@ -43,7 +43,7 @@ setup(
         'Programming Language :: Python :: 3.6',
     ],
     packages=find_packages(),
-    python_requires='~=3.6',
+    python_requires='>=3.5',
     setup_requires=['pytest-runner'],
     tests_require=['pytest'] + extra_requirements,
     entry_points={
