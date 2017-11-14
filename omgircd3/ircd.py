@@ -271,6 +271,9 @@ class User(object):
         logging.info("{} has quit".format(self.nickname))
 
     def handle_recv(self):
+        """
+        Main handler for received messages.
+        """
         while self.recvbuffer.find("\n") != -1:
             recv = self.recvbuffer[:self.recvbuffer.find("\n")]
             self.recvbuffer = self.recvbuffer[self.recvbuffer.find("\n") + 1:]
@@ -296,6 +299,7 @@ class User(object):
                 self.send_numeric(421, "%s :Unknown command" % command)
 
     def handle_PING(self, recv):
+        logging.debug("PING:User:%s", self)
         if len(recv) < 2:
             self.send_numeric(461, "PING :Not enough parameters")
             return
@@ -303,16 +307,19 @@ class User(object):
                    (self.server.hostname, self.server.hostname, recv[1]))
 
     def handle_MOTD(self, recv):
+        logging.debug("MOTD:User:%s", self)
         self.send_numeric(375, ":%s message of the day" % self.server.hostname)
         for line in self.server.motd.split("\n"):
             self.send_numeric(372, ":- %s" % line)
         self.send_numeric(376, ":End of message of the day.")
 
     def handle_VERSION(self, recv):
+        logging.debug("VERSION:User:%s", self)
         self.send_numeric(351, "%s. %s :http://github.com/programble/omgircd" %
                           (self.server.version, self.server.hostname))
 
     def handle_NICK(self, recv):
+        logging.debug("NICK:User:%s", self)
         if len(recv) < 2:
             # No nickname given
             self.send_numeric(431, ":No nickname given")
@@ -351,6 +358,7 @@ class User(object):
             self.welcome()
 
     def handle_USER(self, recv):
+        logging.debug("USER:User:%s", self)
         if len(recv) < 5:
             self.send_numeric(461, "USER :Not enough parameters")
             return
@@ -370,6 +378,7 @@ class User(object):
             self.welcome()
 
     def handle_PRIVMSG(self, recv):
+        logging.debug("PRIVMSG:User:%s", self)
         if len(recv) < 2:
             self.send_numeric(411, ":No recipient given (PRIVMSG)")
             return
@@ -426,6 +435,7 @@ class User(object):
             self.broadcast([user], "PRIVMSG %s :%s" % (target, msg))
 
     def handle_NOTICE(self, recv):
+        logging.debug("NOTICE:User:%s", self)
         if len(recv) < 2:
             self.send_numeric(411, ":No recipient given (NOTICE)")
             return
@@ -464,6 +474,7 @@ class User(object):
             self.broadcast([user], "NOTICE %s :%s" % (target, msg))
 
     def handle_JOIN(self, recv):
+        logging.debug("JOIN:User:%s", self)
         if len(recv) < 2:
             self.send_numeric(461, "JOIN :Not enough parameters")
             return
@@ -522,6 +533,7 @@ class User(object):
                        (self.server.hostname, channel.name, self.nickname))
 
     def handle_PART(self, recv):
+        logging.debug("PART:User:%s", self)
         if len(recv) < 2:
             self.send_numeric(461, "PART :Not enough parameters")
             return
@@ -544,6 +556,7 @@ class User(object):
         channel.usermodes.pop(self)
 
     def handle_NAMES(self, recv):
+        logging.debug("NAMES:User:%s", self)
         if len(recv) < 2:
             self.send_numeric(461, "NAMES :Not enough parameters")
             return
@@ -569,6 +582,7 @@ class User(object):
         self.send_numeric(366, "%s :End of /NAMES list." % channel.name)
 
     def handle_TOPIC(self, recv):
+        logging.debug("TOPIC:User:%s", self)
         if len(recv) < 2:
             self.send_numeric(461, "TOPIC :Not enough parameters")
             return
@@ -608,6 +622,7 @@ class User(object):
                            (channel.name, channel.topic))
 
     def handle_ISON(self, recv):
+        logging.debug("ISON:User:%s", self)
         if len(recv) < 2:
             self.send_numeric(461, "ISON :Not enough parameters")
             return
@@ -620,6 +635,7 @@ class User(object):
         self.send_numeric(303, ":%s" % " ".join(online))
 
     def handle_AWAY(self, recv):
+        logging.debug("AWAY:User:%s", self)
         if len(recv) < 2:
             self.away = False
             self.send_numeric(305, ":You are no longer marked as being away")
@@ -628,6 +644,7 @@ class User(object):
             self.send_numeric(306, ":You have been marked as being away")
 
     def handle_MODE(self, recv):
+        logging.debug("MODE:User:%s", self)
         # TODO: Handle "mode b" (mode b should return the banlist)
         if len(recv) < 2:
             self.send_numeric(461, "MODE :Not enough parameters")
@@ -697,6 +714,7 @@ class User(object):
                            (channel.name, recv[2], ' '.join(recv[3:])))
 
     def handle_WHOIS(self, recv):
+        logging.debug("WHOIS:User:%s", self)
         if len(recv) < 2:
             self.send_numeric(461, "WHOIS :Not enough parameters")
             return
@@ -731,6 +749,7 @@ class User(object):
         self.send_numeric(318, "%s :End of /WHOIS list." % user.nickname)
 
     def handle_WHO(self, recv):
+        logging.debug("WHO:User:%s", self)
         if len(recv) < 2:
             self.send_numeric(461, "WHO :Not enough parameters")
             return
@@ -758,6 +777,7 @@ class User(object):
         self.send_numeric(315, "%s :End of /WHO list." % channel.name)
 
     def handle_KICK(self, recv):
+        logging.debug("KICK:User:%s", self)
         if len(recv) < 3:
             self.send_numeric(461, "KICK :Not enough parameters")
             return
@@ -794,6 +814,7 @@ class User(object):
         channel.usermodes.pop(user)
 
     def handle_LIST(self, recv):
+        logging.debug("LIST:User:%s", self)
         self.send_numeric(321, "Channel :Users  Name")
         for channel in self.server.channels:
             self.send_numeric(322, "%s %d :%s" % (
@@ -801,6 +822,7 @@ class User(object):
         self.send_numeric(323, ":End of /LIST")
 
     def handle_INVITE(self, recv):
+        logging.debug("INVITE:User:%s", self)
         if len(recv) < 3:
             self.send_numeric(461, "INVITE :Not enough parameters")
             return
@@ -836,6 +858,7 @@ class User(object):
         self.send_numeric(341, "%s %s" % (user.nickname, channel.name))
 
     def handle_USERHOST(self, recv):
+        logging.debug("USERHOST:User:%s", self)
         if len(recv) < 2:
             self.send_numeric(461, "USERHOST :Not enough parameters")
             return
@@ -854,6 +877,7 @@ class User(object):
             )
 
     def handle_QUIT(self, recv):
+        logging.debug("QUIT:User:%s", self)
         if len(recv) > 1:
             reason = recv[1]
         else:
