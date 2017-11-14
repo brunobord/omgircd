@@ -962,7 +962,7 @@ class Server(socket.socket):
             _channels = [channel for channel in self.channels
                          if len(channel.users) == 0]
             for channel in _channels:
-                logging.debug("Removing channel %s", channel)
+                logging.info("Removing channel %s", channel)
                 self.remove_channel(channel)
 
             # Ping timeouts
