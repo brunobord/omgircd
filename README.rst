@@ -1,7 +1,7 @@
 Omgircd3
 ========
 
-|Travis Build Status|
+|Travis Build Status| |Python3 Support| |PyPI version|
 
 This is a revamped version of
 `programble/omgircd <https://github.com/programble/omgircd>`__.
@@ -15,9 +15,13 @@ To see the changes between upstream and this version, please read the
 `CHANGES.md <CHANGES.md>`__ document. This document also contains a
 mini-roadmap of the things I'd like to improve in the future.
 
-**WARNING: This version is Python 3 only ; tested with Python 3.6.**
+**NOTE**: This version is Python 3 only ; tested with Python 3.6.
+Python 3.5 support is not 100% ready yet.
 
-Omgircd3 is an Internet Relay Chat Daemon (IRCd) written in Python. It is
+**WARNING**: This IRC server is highly experimental and is probably not as
+stable and reliable as a "serious" one.
+
+Omgircd3 is an Internet Relay Chat Daemon (IRCd) written in Python3. It is
 designed to be as simple as possible, while still providing a complete
 IRC experience.
 
@@ -33,7 +37,7 @@ server::
 
     omgircd3
 
-Optionally,you may want to create a ``config.ini`` file which will
+Optionally, you may want to create a ``config.ini`` file which will
 contain your configuration variables. Copy the ``config.sample.ini``
 file to create your own custom configuration, and run the following:
 
@@ -124,3 +128,8 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 .. |Travis Build Status| image:: https://travis-ci.org/brunobord/omgircd3.svg?branch=master
    :target: https://travis-ci.org/brunobord/omgircd3
+
+.. |Python3 Support| image:: https://caniusepython3.com/check/080a9237-0875-4ab4-a2a7-3463bc831b1d.svg
+   :target: https://caniusepython3.com/check/080a9237-0875-4ab4-a2a7-3463bc831b1d
+
+.. |PyPI version| image:: https://img.shields.io/pypi/v/omgircd3.svg
