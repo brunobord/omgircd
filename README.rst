@@ -24,13 +24,14 @@ IRC experience.
 Usage
 -----
 
-Omgircd3 is still in development and therefore does not have a complete
-launch script. The simplest way to launch Omgircd3 for now is to simply
-run ``ircd.py``
+As of the version ``1.0.0``, you can install ``omgircd3`` using pip::
 
-::
+    pip install omgircd3
 
-    python omgircd3/ircd.py
+It installs a console script you may want to use to instanciate your IRC
+server::
+
+    omgircd3
 
 Optionally,you may want to create a ``config.ini`` file which will
 contain your configuration variables. Copy the ``config.sample.ini``
@@ -38,7 +39,21 @@ file to create your own custom configuration, and run the following:
 
 ::
 
-    python omgircd3/ircd.py --config=path/to/your/config.ini
+    omgircd3 --config=path/to/your/config.ini
+
+Development mode
+----------------
+
+Once you've cloned the repository, you can use the main scripts directly,
+so you don't have to pip install the source code.
+
+::
+
+    python omgircd3/ircd.py
+
+Any option available for the "binary" script will also be available for the
+direct scripts.
+
 
 An alternative method to run Omgircd3 is using the ``ircdreload.py``
 script. This launch script provides a means to reload the IRCd code on
@@ -93,8 +108,7 @@ For documentation on development progress, see ``progress.md``.
 License
 -------
 
-Copyright © 2011, Curtis McEnroe curtis@cmcenroe.me
-Copyright © 2015-2017, Bruno Bord bruno@jehaisleprintemps.net
+Copyright © 2011, Curtis McEnroe curtis@cmcenroe.me + Copyright © 2015-2017, Bruno Bord bruno@jehaisleprintemps.net
 
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above
