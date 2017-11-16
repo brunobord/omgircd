@@ -1,5 +1,9 @@
 # Changelog
 
+## master (unreleased)
+
+Nothing here yet.
+
 ## 1.0.0 (2017-11-16)
 
 Here's a list of the changes made from [upstream](https://github.com/programble/omgircd).
