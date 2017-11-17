@@ -149,14 +149,10 @@ def parse_command(data):
         >>> parse_command('USER bruno bruno 127.0.0.1 :Bruno Bord')
         ['USER', 'bruno', 'bruno', '127.0.0.1', 'Bruno Bord']
     """
-    xwords = data.split(' ')
-    words = []
-    for i in range(len(xwords)):
-        word = xwords[i]
-        if word.startswith(':'):
-            words.append(' '.join([word[1:]] + xwords[i + 1:]))
-            break
-        words.append(word)
+    arguments, _, extra = data.partition(' :')
+    words = arguments.split(' ')
+    if extra:
+        words.append(extra)
     return words
 
 
