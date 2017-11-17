@@ -2,7 +2,7 @@
 
 ## master (unreleased)
 
-Nothing here yet.
+- Added a test to make sure the README.rst is syntactically correct.
 
 ## 1.0.0 (2017-11-16)
 
