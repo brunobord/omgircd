@@ -133,6 +133,33 @@ def is_valid_nickname(nick):
     return not bool(invalid)
 
 
+def parse_command(data):
+    """
+    Parse received command and return a list of words.
+
+    Any word starting with a ":" will be counted as final, and will "eat" the
+    rest of the list.
+
+    e.g::
+
+        >>> parse_command('CAP LS')
+        ['CAP', 'LS']
+        >>> parse_command('NICK bruno')
+        ['NICK', 'bruno']
+        >>> parse_command('USER bruno bruno 127.0.0.1 :Bruno Bord')
+        ['USER', 'bruno', 'bruno', '127.0.0.1', 'Bruno Bord']
+    """
+    xwords = data.split(' ')
+    words = []
+    for i in range(len(xwords)):
+        word = xwords[i]
+        if word.startswith(':'):
+            words.append(' '.join([word[1:]] + xwords[i + 1:]))
+            break
+        words.append(word)
+    return words
+
+
 class User(object):
 
     NORMAL_COMMANDS = (
@@ -191,17 +218,6 @@ class User(object):
 
     def fullname(self):
         return "%s!%s@%s" % (self.nickname, self.username, self.hostname)
-
-    def parse_command(self, data):
-        xwords = data.split(' ')
-        words = []
-        for i in range(len(xwords)):
-            word = xwords[i]
-            if word.startswith(':'):
-                words.append(' '.join([word[1:]] + xwords[i + 1:]))
-                break
-            words.append(word)
-        return words
 
     def _send(self, data):
         self.sendbuffer += data + "\r\n"
@@ -285,7 +301,7 @@ class User(object):
             if recv == '':
                 continue
 
-            parsed = self.parse_command(recv)
+            parsed = parse_command(recv)
             command = parsed[0]
             if command.upper() in self.NORMAL_COMMANDS:
                 func = getattr(self, "handle_{}".format(command.upper()))

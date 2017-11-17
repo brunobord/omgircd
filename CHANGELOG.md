@@ -3,6 +3,7 @@
 ## master (unreleased)
 
 - Added a test to make sure the README.rst is syntactically correct.
+- Added a test suite for the command parser function `parse_command`.
 
 ## 1.0.0 (2017-11-16)
 
