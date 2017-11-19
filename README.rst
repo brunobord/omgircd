@@ -62,6 +62,17 @@ As for the ``ircd.py`` script, you can also use your configuration file:
 
     python omgircd3/ircdreload.py --config=path/to/your/config.ini
 
+Run tests
+---------
+
+If you are in a Python3 environment, you'd only need `tox` to be installed to run the whole test suite using::
+
+    tox
+
+If you are in development mode (i.e. the package is installed in your current environment), you can also run the **unittests** with::
+
+    python setup.py test
+
 Configuration
 -------------
 

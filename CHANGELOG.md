@@ -5,6 +5,7 @@
 - Added a test to make sure the README.rst is syntactically correct.
 - Added a test suite for the command parser function `parse_command` & refactored it in a more pythonic way.
 - [Minor] Using `passenv` to change the `LOGGING_LEVEL` during tox tests (at least locally).
+- [Minor] Standardize the way to run tests using `python setup.py test`.
 
 ## 1.0.0 (2017-11-16)
 
