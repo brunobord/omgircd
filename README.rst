@@ -73,6 +73,11 @@ If you are in development mode (i.e. the package is installed in your current en
 
     python setup.py test
 
+If you want to debug your tests and use some Python Debugger (``ipdb``, for example), you can try running one of the following::
+
+    EXTRA_REQUIRES=ipdb tox -e unittests
+    EXTRA_REQUIRES=ipdb python setup.py test
+
 Configuration
 -------------
 

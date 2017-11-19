@@ -5,11 +5,16 @@ from setuptools import setup, find_packages
 # To use a consistent encoding
 from codecs import open
 from os import path
+from os import environ
 
 import omgircd3
 
 
 here = path.abspath(path.dirname(__file__))
+extra_requirements = environ.get('EXTRA_REQUIRES', [])
+if extra_requirements:
+    extra_requirements = extra_requirements.split(',')
+
 
 # Get the long description from the README file
 with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
@@ -40,7 +45,7 @@ setup(
     packages=find_packages(),
     python_requires='~=3.6',
     setup_requires=['pytest-runner'],
-    tests_require=['pytest'],
+    tests_require=['pytest'] + extra_requirements,
     entry_points={
         'console_scripts': [
             'omgircd3=omgircd3.ircd:run',
